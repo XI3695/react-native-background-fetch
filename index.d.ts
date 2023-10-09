@@ -64,10 +64,6 @@ declare module "react-native-background-fetch" {
 		* Whether this task will continue executing or just a "one-shot".
 		*/
 		periodic?:boolean;
-		/**
-		* When set true, ensure that this job will run if the device has network connection.
-		*/
-		requiresNetworkConnectivity?:boolean;
 	}
 
 	interface BackgroundFetchConfig extends AbstractConfig {
@@ -102,10 +98,6 @@ declare module "react-native-background-fetch" {
 		* The name of the task.  This will be used with [[BackgroundFetch.finish]] to signal task-completion.
 		*/
 		taskId: string;
-		/**
-		* Whether this event is a timeout event or not. If true stop all processing and call [[BackgroundFetch.finish]] immediately.
-		*/
-		timeout: boolean;
 	}
 
 	/**
@@ -148,13 +140,14 @@ declare module "react-native-background-fetch" {
 		/**
 		* Initial configuration of BackgroundFetch, including config-options and Fetch-callback.  The [[start]] method will automatically be executed.
 		*/
-		static configure(config:BackgroundFetchConfig, onEvent:(taskId:string) => void, onTimeout?:(taskId:string) => void):Promise<BackgroundFetchStatus>;
+		static configure(config:BackgroundFetchConfig, callback:(taskId:string) => void, failure?:(status:BackgroundFetchStatus) => void):void;
 		/**
 		* Add an extra fetch event listener in addition to the one initially provided to [[configure]].
 		* @event
 		*/
 		static scheduleTask(config:TaskConfig):Promise<boolean>;
 
+		static onFetch(callback:() => void):void;
 		/**
 		* Start subscribing to fetch events.
 		*/
@@ -176,10 +169,10 @@ declare module "react-native-background-fetch" {
 		* | BackgroundFetch.STATUS_DENIED      | The user explicitly disabled background behavior for this app or for the whole system. |
 		* | BackgroundFetch.STATUS_AVAILABLE   | Background fetch is available and enabled.      |
 		*/
-		static status(callback?:(status:BackgroundFetchStatus) => void):Promise<BackgroundFetchStatus>;
+		static status(callback?:(status:BackgroundFetchStatus) => void): void | Promise<BackgroundFetchStatus>;
 		/**
 		* [Android only] Register a function to execute when the app is terminated.  Requires stopOnTerminate: false.
 		*/
-		static registerHeadlessTask(task:(event:HeadlessEvent) => Promise<void>):void;
+		static registerHeadlessTask(task:(event:HeadlessEvent) => void):void;
 	}
 }

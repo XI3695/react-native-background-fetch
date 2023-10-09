@@ -2,49 +2,41 @@ package com.transistorsoft.rnbackgroundfetch;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
 
 import com.facebook.react.bridge.*;
 import com.facebook.react.modules.core.RCTNativeAppEventEmitter;
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch;
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig;
-import com.transistorsoft.tsbackgroundfetch.LifecycleManager;
 
 public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implements ActivityEventListener, LifecycleEventListener {
     public static final String TAG = "RNBackgroundFetch";
+
     private static final String EVENT_FETCH = "fetch";
     private static final String JOB_SERVICE_CLASS = HeadlessTask.class.getName();
-    private static final String FETCH_TASK_ID = "react-native-background-fetch";
+    private static final String FETCH_TASK_ID                       = "react-native-background-fetch";
+
+    private boolean isForceReload = false;
     private boolean initialized = false;
 
     public RNBackgroundFetchModule(ReactApplicationContext reactContext) {
         super(reactContext);
-        Log.d(BackgroundFetch.TAG, "[RNBackgroundFetch initialize]");
-        BackgroundFetch.getInstance(reactContext.getApplicationContext());
         reactContext.addLifecycleEventListener(this);
     }
 
     @Override
+
+
     public String getName() {
         return TAG;
     }
 
     @ReactMethod
-    public void configure(ReadableMap options, final Callback success, final Callback failure) {
+    public void configure(ReadableMap options, final Callback failure) {
         BackgroundFetch adapter = getAdapter();
 
         BackgroundFetch.Callback callback = new BackgroundFetch.Callback() {
             @Override public void onFetch(String taskId) {
-                WritableMap params = new WritableNativeMap();
-                params.putString("taskId", taskId);
-                params.putBoolean("timeout", false);
-                getReactApplicationContext().getJSModule(RCTNativeAppEventEmitter.class).emit(EVENT_FETCH, params);
-            }
-            @Override public void onTimeout(String taskId) {
-                WritableMap params = new WritableNativeMap();
-                params.putString("taskId", taskId);
-                params.putBoolean("timeout", true);
-                getReactApplicationContext().getJSModule(RCTNativeAppEventEmitter.class).emit(EVENT_FETCH, params);
+                getReactApplicationContext().getJSModule(RCTNativeAppEventEmitter.class).emit(EVENT_FETCH, taskId);
             }
         };
         adapter.configure(buildConfig(options)
@@ -52,7 +44,6 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
                 .setIsFetchTask(true)
                 .build(), callback);
 
-        success.invoke(BackgroundFetch.STATUS_AVAILABLE);
     }
 
     @ReactMethod
@@ -89,16 +80,6 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
         adapter.finish(taskId);
     }
 
-    @ReactMethod
-    public void addListener(String event) {
-        // Keep:  Required for RN built-in NativeEventEmitter calls.
-    }
-
-    @ReactMethod
-    public void removeListeners(Integer count) {
-        // Keep:  Required for RN built-in NativeEventEmitter calls.
-    }
-
     @Override
     public void onHostResume() {
         if (!initialized) {
@@ -116,7 +97,6 @@ public class RNBackgroundFetchModule extends ReactContextBaseJavaModule implemen
 
     @Override
     public void onHostDestroy() {
-        LifecycleManager.getInstance().setHeadless(true);
         initialized = false;
     }
 

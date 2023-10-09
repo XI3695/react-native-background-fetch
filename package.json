@@ -1,11 +1,9 @@
 {
   "name": "react-native-background-fetch",
-  "version": "4.2.1",
+  "version": "3.1.0",
   "description": "iOS & Android BackgroundFetch API implementation for React Native",
   "scripts": {
-    "build": "yarn run build:expo",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build:expo": "rimraf expo/plugin/build && tsc --build ./expo/plugin"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
@@ -23,10 +21,22 @@
   "bugs": {
     "url": "https://github.com/transistorsoft/react-native-background-fetch/issues"
   },
+  "rnpm": {
+    "commands": {
+      "postlink": "node node_modules/react-native-background-fetch/scripts/postlink.js",
+      "postunlink": "node node_modules/react-native-background-fetch/scripts/postunlink.js"
+    }
+  },
   "homepage": "https://transistorsoft.github.io/react-native-background-fetch",
+  "peerDependencies": {
+    "react-native": ">=0.28.0"
+  },
   "devDependencies": {
-    "rimraf": "^3.0.2",
-    "@expo/config-plugins": "^4.1.0",
-    "typescript": "^4.6.2"
+    "react-native": "^0.52.0"
+  },
+  "dependencies": {
+    "fast-plist": "^0.1.2",
+    "plist": "^3.0.1",
+    "xcode": "^2.0.0"
   }
 }

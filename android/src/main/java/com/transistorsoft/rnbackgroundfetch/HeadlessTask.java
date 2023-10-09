@@ -14,7 +14,6 @@ import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 import com.facebook.react.jstasks.HeadlessJsTaskContext;
 import com.facebook.react.jstasks.HeadlessJsTaskEventListener;
-import com.transistorsoft.tsbackgroundfetch.BGTask;
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch;
 import com.facebook.react.common.LifecycleState;
 
@@ -28,7 +27,7 @@ public class HeadlessTask implements HeadlessJsTaskEventListener {
     private ReactNativeHost mReactNativeHost;
     private HeadlessJsTaskContext mActiveTaskContext;
 
-    public HeadlessTask(Context context, BGTask task) {
+    public HeadlessTask(Context context, String taskId) {
         try {
             ReactApplication reactApplication = ((ReactApplication) context.getApplicationContext());
             mReactNativeHost = reactApplication.getReactNativeHost();
@@ -37,8 +36,7 @@ public class HeadlessTask implements HeadlessJsTaskEventListener {
             return;  // <-- Do nothing.  Just return
         }
         WritableMap clientEvent = new WritableNativeMap();
-        clientEvent.putString("taskId", task.getTaskId());
-        clientEvent.putBoolean("timeout", task.getTimedOut());
+        clientEvent.putString("taskId", taskId);
         HeadlessJsTaskConfig config = new HeadlessJsTaskConfig(HEADLESS_TASK_NAME, clientEvent, 30000);
         startTask(config);
     }
